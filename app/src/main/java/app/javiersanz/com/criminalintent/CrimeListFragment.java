@@ -1,5 +1,6 @@
 package app.javiersanz.com.criminalintent;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -37,14 +38,26 @@ public class CrimeListFragment extends Fragment {
         return view;
     }
 
+    // onResume
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        updateUI();
+    }
+
     // Method for updating UI
 
     private void updateUI(){
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
-        mAdapter = new CrimeAdapter(crimes);
-        mCrimeRecyclerView.setAdapter(mAdapter);
+        if(mAdapter == null) {
+            mAdapter = new CrimeAdapter( crimes );
+            mCrimeRecyclerView.setAdapter( mAdapter );
+        } else {
+            mAdapter.notifyDataSetChanged(); // We notify whether list's item has changed
+        }
     }
 
     // Defining the ViewHolder as an inner class
@@ -72,9 +85,10 @@ public class CrimeListFragment extends Fragment {
             mSolvedCheckBox.setChecked(mCrime.isSolved());
         }
 
-        @Override // We'll show a toast when the user touches a Crime from the list
+        @Override // We'll create an intent which takes us to CrimeActivity
         public void onClick(View v) {
-            Toast.makeText(getActivity(),mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();
+            Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+            startActivity(intent);
         }
     }
 

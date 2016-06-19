@@ -14,6 +14,7 @@ import android.widget.EditText;
 
 import java.text.DateFormat;
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * Created by Usuario on 11/06/2016.
@@ -22,17 +23,31 @@ public class CrimeFragment extends Fragment {
 
     // Variables
 
+    private static final String ARG_CRIME_ID = "crime_id";
     private Crime mCrime;
     private EditText mTitleField;
     private Button mDateButton;
     private CheckBox mSolvedCheckBox;
+
+    // newInstance method
+    // It accepts a UUID, creates an arguments bundle, creates a fragment instance, and then attaches the argument to the fragment
+
+    public static CrimeFragment newInstance (UUID crimeId){
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_CRIME_ID, crimeId);
+
+        CrimeFragment fragment = new CrimeFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     // onCreate
 
     @Override
     public void onCreate (Bundle savedInstance){
         super.onCreate(savedInstance);
-        mCrime = new Crime();
+        UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
+        mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
     }
 
     // onCreateView
@@ -44,6 +59,7 @@ public class CrimeFragment extends Fragment {
 
         // Title Field reference to the EditText and add a listener
         mTitleField = (EditText) v.findViewById(R.id.crime_title);
+        mTitleField.setText(mCrime.getTitle());
         mTitleField.addTextChangedListener(new TextWatcher(){
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -71,6 +87,7 @@ public class CrimeFragment extends Fragment {
         // We'll add a listener that will update the mSolved field of the Crime
 
         mSolvedCheckBox = (CheckBox)v.findViewById(R.id.crime_solved);
+        mSolvedCheckBox.setChecked(mCrime.isSolved());
         mSolvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
