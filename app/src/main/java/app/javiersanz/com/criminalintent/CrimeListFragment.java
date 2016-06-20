@@ -87,7 +87,7 @@ public class CrimeListFragment extends Fragment {
 
         @Override // We'll create an intent which takes us to CrimeActivity
         public void onClick(View v) {
-            Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
             startActivity(intent);
         }
     }
