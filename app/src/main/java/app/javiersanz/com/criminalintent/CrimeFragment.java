@@ -86,7 +86,7 @@ public class CrimeFragment extends Fragment {
         // Refering dateButton to the widget and getting the current date for it
 
         mDateButton = (Button)v.findViewById(R.id.crime_date);
-        mDateButton.setText(DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH).format(mCrime.getDate()).toString());
+        updateDate();
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,6 +115,10 @@ public class CrimeFragment extends Fragment {
 
     }
 
+    private void updateDate() {
+        mDateButton.setText( DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH).format(mCrime.getDate()).toString());
+    }
+
     // Let's retrieve the extra, set the date on the Crime and refresh the text of the date button
 
     @Override
@@ -127,7 +131,7 @@ public class CrimeFragment extends Fragment {
             Date date = (Date) data
                     .getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setDate(date);
-            mDateButton.setText(DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH).format(mCrime.getDate()).toString());
+            updateDate();
         }
     }
 }

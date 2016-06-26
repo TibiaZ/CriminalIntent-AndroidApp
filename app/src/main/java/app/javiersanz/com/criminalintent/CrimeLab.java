@@ -30,13 +30,12 @@ public class CrimeLab {
 
     private CrimeLab(Context context){
         mCrimes = new ArrayList<>();
-        // Generating crimes and adding them to the list mCrimes:
-        for(int i = 0; i < 100; i++){
-            Crime crime = new Crime();
-            crime.setTitle("Crime #" + (i + 1));
-            crime.setSolved(i % 2 == 0); // Every other one
-            mCrimes.add(crime);
-        }
+    }
+
+    // Adding a new crime with the plus menu button
+
+    public void addCrime(Crime c){
+        mCrimes.add(c);
     }
 
     public List<Crime> getCrimes(){
