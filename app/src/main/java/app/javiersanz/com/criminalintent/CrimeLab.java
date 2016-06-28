@@ -1,10 +1,15 @@
 package app.javiersanz.com.criminalintent;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static app.javiersanz.com.criminalintent.CrimeDbSchema.*;
 
 /**
  * Created by Usuario on 17/06/2016.
@@ -14,7 +19,8 @@ public class CrimeLab {
     // Variables
 
     private static CrimeLab sCrimeLab;
-    private List <Crime> mCrimes;
+    private Context mContext;
+    private SQLiteDatabase mDataBase;
 
     // Get method: if the instance already exists, then get() simply returns the instance
     // If the instance does not exist yet, then get()  will cal the constructor to create it
@@ -29,26 +35,91 @@ public class CrimeLab {
     // Setting up the list of Crime objects
 
     private CrimeLab(Context context){
-        mCrimes = new ArrayList<>();
+        mContext = context.getApplicationContext();
+        mDataBase = new CrimeBaseHelper(mContext)
+                .getWritableDatabase();
     }
 
     // Adding a new crime with the plus menu button
 
     public void addCrime(Crime c){
-        mCrimes.add(c);
+        ContentValues values = getContentValues(c);
+
+        mDataBase.insert(CrimeTable.NAME, null, values);
     }
 
+    // Updating a crime
+
+    public void updateCrime(Crime crime){
+        String uuidString = crime.getId().toString();
+        ContentValues values = getContentValues(crime);
+
+        mDataBase.update(CrimeTable.NAME, values,
+                CrimeTable.Cols.UUID + " = ?",
+                new String[]{uuidString});
+    }
+
+    // Picking up a crime from the DB
+
     public List<Crime> getCrimes(){
-        return mCrimes;
+        List<Crime> crimes = new ArrayList<>();
+        CrimeCursorWrapper cursor = queryCrimes(null, null);
+
+        try{
+            cursor.moveToFirst();
+            while(!cursor.isAfterLast()){
+                crimes.add(cursor.getCrime());
+                cursor.moveToNext();
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return crimes;
+    }
+
+    private static ContentValues getContentValues(Crime crime){
+        ContentValues values = new ContentValues();
+        values.put(CrimeTable.Cols.UUID, crime.getId().toString());
+        values.put(CrimeTable.Cols.TITLE, crime.getTitle());
+        values.put(CrimeTable.Cols.DATE, crime.getDate().getTime());
+        values.put(CrimeTable.Cols.SOLVED, crime.isSolved() ? 1 : 0);
+
+        return values;
+    }
+
+    // Querying for Crimes
+
+    private CrimeCursorWrapper queryCrimes (String whereClause, String[] whereArgs){
+        Cursor cursor = mDataBase.query(
+                CrimeTable.NAME,
+                null, // Colums - null selects all columns
+                whereClause,
+                whereArgs,
+                null, // groupBy
+                null, // having
+                null // orderBy
+        );
+
+        return new CrimeCursorWrapper(cursor);
     }
 
     public Crime getCrime (UUID id){
-        for(Crime crime : mCrimes){
-            if(crime.getId().equals(id)){
-                return crime;
+        CrimeCursorWrapper cursor = queryCrimes(
+                CrimeTable.Cols.UUID + " = ?",
+                new String[]{id.toString()}
+        );
+
+        try{
+            if(cursor.getCount() == 0){
+                return null;
             }
+
+            cursor.moveToFirst();
+            return cursor.getCrime();
+        } finally {
+            cursor.close();
         }
-        return null;
     }
 
 }

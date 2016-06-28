@@ -56,6 +56,16 @@ public class CrimeFragment extends Fragment {
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
     }
 
+    // onPause
+
+    @Override
+    public void onPause(){
+        super.onPause();
+
+        CrimeLab.get(getActivity())
+                .updateCrime(mCrime);
+    }
+
     // onCreateView
     // It inflates the fragment's view by calling LoyoutInflater
 
