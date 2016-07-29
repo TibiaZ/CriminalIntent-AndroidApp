@@ -16,7 +16,7 @@ import java.util.UUID;
 /**
  * Created by Usuario on 20/06/2016.
  */
-public class CrimePagerActivity extends AppCompatActivity {
+public class CrimePagerActivity extends AppCompatActivity implements CrimeFragment.Callbacks{
 
     // Variables
 
@@ -68,5 +68,12 @@ public class CrimePagerActivity extends AppCompatActivity {
                 break;
             }
         }
+    }
+
+    // onCrimeUpdated
+
+    @Override
+    public void onCrimeUpdated(Crime crime){
+
     }
 }
